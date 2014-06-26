@@ -27,7 +27,7 @@ Our plan is to divide the jobs like this:
 
 ## War plan:
 
-* *[DONE]* Create a basic atom app using coffescript
+* **[DONE]** Create a basic atom app using coffescript
 * Show of what the GUI could look like in future
 * Write basic SDL app
 * Integrate into the window
