@@ -1,0 +1,12 @@
+{
+  "name": "sauerbraten-fork-node-trial",
+  "version": "0.0.1",
+  "main": "boot.js",
+  "dependencies": [
+    "coffee-script",
+    "coffeeify",
+    "jquery",
+    "underscore",
+    "lazy.js"
+  ]
+}
