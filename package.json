@@ -1,5 +1,5 @@
 {
-  "name": "sauerbraten-fork-node-trial",
+  "name": "sauerbraten-fork-atom-ui",
   "version": "0.0.1",
   "main": "boot.js",
   "dependencies": [
@@ -8,5 +8,9 @@
     "jquery",
     "underscore",
     "lazy.js"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sauerbraten-fork/sauerbraten-fork-atom-ui.git"
+  }
 }
