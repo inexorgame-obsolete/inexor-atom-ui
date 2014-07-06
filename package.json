@@ -4,13 +4,17 @@
   "main": "boot.js",
   "dependencies": [
     "coffee-script",
-    "coffeeify",
     "jquery",
     "underscore",
-    "lazy.js"
+    "lazy.js",
+    "coffeecup"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/sauerbraten-fork/sauerbraten-fork-atom-ui.git"
-  }
+  },
+  "scripts": {
+    "prepublish": "make pull-deps"
+  },
+  "gypfile": true
 }
