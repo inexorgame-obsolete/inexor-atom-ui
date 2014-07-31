@@ -10,6 +10,11 @@
 
 #include "atom/browser/atom_browser_client.h"
 #include "atom/browser/native_window.h"
+#include "atom/browser/window_list.h"
+
+#define private public
+#include "atom/browser/native_window_gtk.h"
+#undef private
 
 #include "atom/browser/atom_browser_main_parts.h"
 #include "atom/browser/browser.h"
@@ -41,11 +46,43 @@
 static void Hello(const v8::FunctionCallbackInfo<v8::Value>& args) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope scope(isolate);
+
+  atom::WindowList *list = atom::WindowList::GetInstance();
+  size_t list_s = 4;
+
+  size_t i = 0;
+  for (; i < list_s; i++) {
+    atom::NativeWindow *win = list->get(i);
+    atom::NativeWindowGtk *win_atom_gtk = (atom::NativeWindowGtk*) win;
+
+    GtkWindow *win_ = win_atom_gtk->window_;
+    GtkWidget *vbox_ = win_atom_gtk->vbox_;
+
+    std::cout << "WINDOW: #" << i << "/" << list_s
+        << " --> " << list
+        << " --> " << win
+        << " --> " << win_atom_gtk
+        << " --> " << win_
+        << " + " << vbox_
+        << std::endl;
+
+    if (win_ != NULL && vbox_ != NULL) {
+      std::cout << "FOUND!!" << std::endl;
+      break;
+      g_object_ref(vbox_);
+      gtk_container_remove(GTK_CONTAINER(win_), vbox_);
+
+      GtkFixed *fixed = (GtkFixed*)gtk_fixed_new();
+      gtk_fixed_put(fixed, vbox_, (gint)0, (gint)0);
+
+    }
+  }
+
   args.GetReturnValue().Set(v8::String::New("world"));
 }
 
 int sdl(void *dummy) {
-  SDL_Init( SDL_INIT_EVERYTHING ); //Set up screen 
+  SDL_Init( SDL_INIT_EVERYTHING ); //Set up screen
   SDL_Surface* screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE);
   SDL_Surface* hello = SDL_LoadBMP( "lolcats.bmp" );
   SDL_BlitSurface( hello, NULL, screen, NULL );

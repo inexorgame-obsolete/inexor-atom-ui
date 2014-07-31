@@ -37,7 +37,7 @@ app.on 'ready', ->
   console.log(process)
   console.log("-----------------------------------")
   console.log(process.boop)
-  delay 3000, ->
+  delay 300, ->
     mainWindow.openDevTools()
     boop = process.boop
     boop.hello()
