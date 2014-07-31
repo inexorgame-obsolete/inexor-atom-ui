@@ -28,8 +28,10 @@ Our plan is to divide the jobs like this:
 ## War plan:
 
 * **[DONE]** Create a basic atom app using coffescript
-* Show of what the GUI could look like in future
-* Write basic SDL app
-* Integrate into the window
-* Create a minimal testing API
+* **[DONE]** Write basic SDL app
+* **[DONE]** Statically compile atom shell into our test
+  app
+* **[DONE]** Create a minimal testing API
+* Integrate both SDL and atom shell in one window
+* (Show of what the GUI could look like in future)
 * Port to our sauerbraten fork
