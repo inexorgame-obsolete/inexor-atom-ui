@@ -58,48 +58,11 @@ addLayer = (name, html="") ->
 
 doc.ready ->
   body = $ "body"
-  bg = addLayer "bg"
-  bg.css "background-size", "100% 100%"
-  bg.css "background", "url('bg.webp')"
+  #bg = addLayer "bg"
+  #bg.css "background-position: 50% 50%"
+  #bg.css "background-size", "20% 20%"
+  #bg.css "background-repeat", "no-repeat"
+  #bg.css "background", "url('bg.webp')"
 
 
   return
-
-  bg = addLayer "GL", ckr ->
-    canvas style: "width: 100%; height: 100%"
-
-  can = head $ 'canvas'
-
-  gl = can.getContext "webgl"
-  gl.viewportWidth = can.width
-  gl.viewportHeight = can.height
-  gl.clearColor(0.9, 0.6, 0.3, 0.9)
-  gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight)
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
-  #buf = []
-  #buf.tri_vertex = gl.createBuffer()
-  #gl.bindBuffer gl.ARRAY_BUFFER, buf.tri_vertex
-  #vertices = [
-       #0.0,  1.0,  0.0,
-      #-1.0, -1.0,  0.0,
-       #1.0, -1.0,  0.0
-  #]
-  #buf.tri_vertex.itemSize = 3
-  #buf.tri_vertex.numItems = 3
-
-  
-  #buf.squ_vertex = gl.createBuffer()
-  #gl.bindBuffer(gl.ARRAY_BUFFER, buf.squ_vertex)
-  #vertices = [
-       #1.0,  1.0,  0.0,
-      #-1.0,  1.0,  0.0,
-       #1.0, -1.0,  0.0,
-      #-1.0, -1.0,  0.0
-  #]
-  #gl.bufferData gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW
-  #buf.squ_vertex.itemSize = 3
-  #buf.squ_vertex.numItems = 4
-
-
-

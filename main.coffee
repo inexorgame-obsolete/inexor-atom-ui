@@ -16,6 +16,11 @@ app.on 'window-all-close', ->
 frev = (f) -> (a...) -> f a.reverse()...
 delay = frev setTimeout
 
+infinite = (n,f) ->
+  delay n ->
+    infinite n,f
+    f()
+
 # This method will be called when atom-shell has done everything
 # initialization and ready for creating browser windows.
 app.on 'ready', ->
@@ -31,15 +36,12 @@ app.on 'ready', ->
     # in an array if your app supports multi windows, this is the time
     # when you should delete the corresponding element.
     mainWindow = null
-  
-  console.log "---"
 
-  console.log(process)
   console.log("-----------------------------------")
-  console.log(process.boop)
-  delay 300, ->
-    mainWindow.openDevTools()
+  delay 100, ->
+    #mainWindow.openDevTools()
     boop = process.boop
     boop.hello()
+    delay
     boop.sdlOpen()
 

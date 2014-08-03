@@ -3,11 +3,10 @@ CXX=clang++
 LD=clang
 LDXX=clang++
 
-ATOMSHELL=/opt/atom-shell
+ATOMSHELL=../../atom-shell/
 VENDOR="$(ATOMSHELL)/out/Debug/obj/vendor"
 
 CXXFLAGS=                      \
-	--std=c++11                         \
 	-I$(ATOMSHELL)/include       \
 	-I$(ATOMSHELL)               \
 	-I$(ATOMSHELL)/include/libchromiumcontent/ \
@@ -28,9 +27,12 @@ CXXFLAGS=                      \
 	-ffunction-sections          \
 	-fdata-sections              \
 	-fno-omit-frame-pointer      \
-	-fno-rtti                    \
 	-fno-exceptions              \
-	$(shell pkg-config gtk+-3.0 --cflags) \
+	-fno-rtti                    \
+	$(shell pkg-config --cflags gdk-pixbuf-2.0) \
+	$(shell pkg-config gtk+-2.0 --cflags) \
+	$(shell pkg-config libgnomeui-2.0 --cflags) \
+	$(shell pkg-config --cflags cairo)    \
 	#-fno-tree-vrp                \
 	#-fno-tree-sink               \
 	#-MMD                        \
@@ -56,7 +58,10 @@ LDFLAGS=                              \
 	-lchromiumcontent                   \
 	-lSDL                               \
 	-latom_lib                          \
+	$(shell pkg-config --libs gdk-pixbuf-2.0) \
 	$(shell pkg-config gtk+-2.0 --libs) \
+	$(shell pkg-config libgnomeui-2.0 --libs) \
+	$(shell pkg-config --libs cairo)    \
 	-ldl                                \
 	-lbreakpad_client                   \
 	-lnode_lib                          \
@@ -72,6 +77,7 @@ LDFLAGS=                              \
 	-g                                  \
 
 compile:
-	$(CXX) $(CXXFLAGS) -c -o boop.o boop.cc
-	$(LD) -Wl,--start-group boop.o $(LDFLAGS) -o boop -Wl,--end-group
+	$(CXX) $(CXXFLAGS) --std=c++11 -c -o boop.o boop.cc
+	$(CC) $(CFLAGS) --std=c11 -c -o ghbcompositor.o ghbcompositor.c
+	$(LD) -v -Wl,--start-group boop.o ghbcompositor.o $(LDFLAGS) -o boop -Wl,--end-group
 	#$(LD) $(LDFLAGS) -shared -rdynamic -o boop.node -Wl,--soname=boop.node  boop.o
