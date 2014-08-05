@@ -14,6 +14,8 @@ CXXFLAGS=                      \
 	-I$(ATOMSHELL)/vendor/brightray/ \
 	-I$(ATOMSHELL)/vendor/node/deps/uv/include/ \
 	-I$(ATOMSHELL)/vendor/node/src/ \
+	-I$(ATOMSHELL)/vendor/brightray/vendor/libchromiumcontent/vendor/chromium/src \
+	-I$(ATOMSHELL)/vendor/brightray/vendor/download/libchromiumcontent/src/third_party/skia/include/core/ \
 	-fPIC                        \
 	-D'_LARGEFILE_SOURCE'        \
 	-D'_FILE_OFFSET_BITS=64'     \
