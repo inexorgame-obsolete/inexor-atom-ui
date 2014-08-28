@@ -42,6 +42,4 @@ app.on 'ready', ->
     #mainWindow.openDevTools()
     boop = process.boop
     boop.hello()
-    delay
-    boop.sdlOpen()
 

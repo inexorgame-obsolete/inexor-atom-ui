@@ -61,8 +61,6 @@
 #include <gdk/gdkscreen.h>
 #include <cairo.h>
 
-SDL_Surface *screen, *hello;
-
 GtkWidget *blender;
 GtkWidget *sdl_canvas;
 GtkWidget *chrome_canvas;
@@ -76,91 +74,42 @@ content::RenderViewHost* host;
 SkBitmap background;
 
 int sdl(void *dummy) {
+  SDL_Surface *screen = (SDL_Surface*) dummy;
+
+  SDL_Surface *hello = SDL_LoadBMP( "lolcats.bmp" );
   SDL_BlitSurface( hello, NULL, screen, NULL );
   SDL_Flip( screen );
   return 0;
-  SDL_Init( SDL_INIT_EVERYTHING ); //Set up screen
-  SDL_Surface* screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE);
-  SDL_Surface* hello = SDL_LoadBMP( "lolcats.bmp" );
-  SDL_BlitSurface( hello, NULL, screen, NULL );
-  SDL_Flip( screen );
-  SDL_Delay( 30000 );
-  SDL_FreeSurface( screen);
-  SDL_Quit();
-
-  return 0;
 }
 
 
-gboolean supports_alpha = FALSE;
-static void screen_changed(GtkWidget *widget, GdkScreen *old_screen, gpointer userdata)
-{
-    /* To check if the display supports alpha channels, get the colormap */
-    GdkScreen *screen = gtk_widget_get_screen(widget);
-    GdkColormap *colormap = gdk_screen_get_rgba_colormap(screen);
+static gboolean exposeTestCanvas(GtkWidget *widget, GdkEventExpose *event, gpointer userdata) {
+  cairo_t *cr = gdk_cairo_create(widget->window);
 
-    if (!colormap)
-    {
-        printf("Your screen does not support alpha channels!\n");
-        colormap = gdk_screen_get_rgb_colormap(screen);
-        supports_alpha = FALSE;
-  }
-  else
-    {
-        printf("Your screen supports alpha channels!\n");
-        supports_alpha = TRUE;
-    }
+  cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.0);
+  cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+  cairo_paint(cr);
+  cairo_destroy(cr);
 
-    gtk_widget_set_colormap(widget, colormap);
+  printf("PT\n");
+
+  return FALSE;
 }
 
-static gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer userdata)
-{
-   cairo_t *cr = gdk_cairo_create(widget->window);
+static void SDL_Open(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope scope(isolate);
 
-    cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 0.0); /* transparent */
-
-    /* draw the background */
-    cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-    printf("PAINT test\n");
-    cairo_paint(cr);
-
-    cairo_destroy(cr);
+  std::cout << "IN SDL_OPen" << std::endl;
 
 
-    return FALSE;
+  args.GetReturnValue().Set(v8::String::New("SDL"));
 }
 
-static gboolean expose_vbox(GtkWidget *widget, GdkEventExpose *event, gpointer userdata)
-{
-   cairo_t *cr = gdk_cairo_create(widget->window);
-    printf("PAINT vbox\n");
-
-    /* draw the background */
-    cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 0.0); /* transparent */
-    //cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-    //cairo_paint(cr);
-
-    cairo_set_source_rgba (cr, 0.0, 1.0, 0.0, 1.0); /* transparent */
-    cairo_move_to(cr, 30, 30);
-    cairo_show_text(cr, "This is the fnord!");
-
-    cairo_destroy(cr);
-
-    return FALSE;
-}
-
-static void clicked(GtkWindow *win, GdkEventButton *event, gpointer user_data)
-{
-    /* toggle window manager frames */
-    //gtk_window_set_decorated(win, !gtk_window_get_decorated(win));
-}
 
 static void Hello(const v8::FunctionCallbackInfo<v8::Value>& args) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope scope(isolate);
-
-  std::cout << "NULL = " << NULL << std::endl;
 
   // Focus on the first visible window.
   atom::WindowList *list = atom::WindowList::GetInstance();
@@ -173,7 +122,6 @@ static void Hello(const v8::FunctionCallbackInfo<v8::Value>& args) {
     native_view = NULL;
 
     if (win_ != NULL) {
-      std::cout << "RECOVER! i=" << std::endl;
       vbox_ = (GtkWidget*)gtk_bin_get_child(GTK_BIN(win_));
     }
 
@@ -204,16 +152,12 @@ static void Hello(const v8::FunctionCallbackInfo<v8::Value>& args) {
       host->GetView()->SetBackground(background);
 
       // TEST VIEW
-       
+      
       test_canvas = gtk_event_box_new();
 
       gtk_widget_set_app_paintable(test_canvas, TRUE);
 
-      g_signal_connect(G_OBJECT(test_canvas), "expose-event", G_CALLBACK(expose), NULL);
-      g_signal_connect(G_OBJECT(test_canvas), "screen-changed", G_CALLBACK(screen_changed), NULL);
-
-      gtk_widget_add_events(test_canvas, GDK_BUTTON_PRESS_MASK);
-      g_signal_connect(G_OBJECT(test_canvas), "button-press-event", G_CALLBACK(clicked), NULL);
+      g_signal_connect(G_OBJECT(test_canvas), "expose-event", G_CALLBACK(exposeTestCanvas), NULL);
 
       GtkWidget* fixed_container = gtk_fixed_new();
       gtk_container_add(GTK_CONTAINER(test_canvas), fixed_container);
@@ -222,24 +166,25 @@ static void Hello(const v8::FunctionCallbackInfo<v8::Value>& args) {
       gtk_widget_set_size_request(button, 100, 100);
       gtk_container_add(GTK_CONTAINER(fixed_container), button);
 
-      screen_changed(test_canvas, NULL, NULL);
+      GdkScreen *gscreen = gtk_widget_get_screen(test_canvas);
+      GdkColormap *colormap = gdk_screen_get_rgba_colormap(gscreen);
+      gtk_widget_set_colormap(test_canvas, colormap);
 
       gtk_widget_show_all(test_canvas);
-      gtk_widget_realize(test_canvas);
-      gtk_widget_show(test_canvas);
 
       // SDL CANVAS
 
       sdl_canvas = gtk_event_box_new();
- 
+
       // INITIALIZE LAYOUT
 
       blender = ghb_compositor_new();
+      gtk_container_add(GTK_CONTAINER(win_), GTK_WIDGET(blender));
+
       ghb_compositor_zlist_insert(GHB_COMPOSITOR(blender), sdl_canvas, 1, 1);
       ghb_compositor_zlist_insert(GHB_COMPOSITOR(blender), test_canvas, 2, 1);
-      //ghb_compositor_zlist_insert(GHB_COMPOSITOR(blender), chrome_canvas, 3, 0.0);
+      ghb_compositor_zlist_insert(GHB_COMPOSITOR(blender), chrome_canvas, 2, 0.5);
 
-      gtk_container_add(GTK_CONTAINER(win_), GTK_WIDGET(blender));
 
       // SET BACKGROUNDS FOR DEBUGGING
 
@@ -285,32 +230,18 @@ static void Hello(const v8::FunctionCallbackInfo<v8::Value>& args) {
         fprintf(stderr, "Initialized SDL video on %s\n", SDL_windowhack);
       }
 
-      screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE);
-      hello = SDL_LoadBMP( "lolcats.bmp" );
-      sdl(NULL);
+      SDL_Surface *screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE);
+      SDL_CreateThread(sdl, screen);
     }
   }
 
   args.GetReturnValue().Set(v8::String::New("world"));
 }
 
-
-static void SDL_Open(const v8::FunctionCallbackInfo<v8::Value>& args) {
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::HandleScope scope(isolate);
-
-  std::cout << "IN SDL_OPen" << std::endl;
-
-  SDL_CreateThread(sdl, NULL);
-
-  args.GetReturnValue().Set(v8::String::New("SDL"));
-}
-
 // NodeModuleInit ////////
 
 void init(v8::Handle<v8::Object> exports) {
   NODE_SET_METHOD(exports, "hello", Hello);
-  NODE_SET_METHOD(exports, "sdlOpen", SDL_Open);
 }
 
 NODE_MODULE(boop, init)
